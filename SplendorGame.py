@@ -1,0 +1,86 @@
+import sys
+sys.path.append('..')
+from Game import Game
+from .SplendorLogic import print_board, move_to_str
+from .SplendorLogicNumba import Board, observation_size, action_size
+import numpy as np
+from numba import jit, njit
+
+
+
+class SplendorGame(Game):
+	def __init__(self, N, is_fill=True):
+		self.NUMBER_PLAYERS = N #プレイヤー人数を学習前に変更
+		self.num_players = self.NUMBER_PLAYERS
+		self.board = Board(self.NUMBER_PLAYERS, is_fill)
+
+	def getInitBoard(self):
+		self.board.init_game()
+		return self.board.get_state()
+
+	def getBoardSize(self):
+		return observation_size(self.num_players)
+
+	def getActionSize(self):
+		return action_size()
+
+	def getMaxScoreDiff(self):
+		return 15
+
+	def getNextState(self, board, player, action, deterministic=False):
+		self.board.copy_state(board, True)
+		next_player = self.board.make_move(action, player, deterministic)
+		return (self.board.get_state(), next_player)
+
+	def getValidMoves(self, board, player):
+		self.board.copy_state(board, False)
+		return self.board.valid_moves(player)
+
+	def getGameEnded(self, board, next_player):
+		self.board.copy_state(board, False)
+		return self.board.check_end_game()
+
+	def getScore(self, board, player):
+		self.board.copy_state(board, False)
+		return self.board.get_score(player)
+
+	def getRound(self, board):
+		self.board.copy_state(board, False)
+		return self.board.get_round()
+
+	def getCanonicalForm(self, board, player):
+		if player == 0:
+			return board
+
+		self.board.copy_state(board, True)
+		self.board.swap_players(player)
+		return self.board.get_state()
+
+	def getSymmetries(self, board, pi, valid_actions):
+		self.board.copy_state(board, True)
+		return self.board.get_symmetries(np.array(pi, dtype=np.float32), valid_actions)
+
+	def stringRepresentation(self, board):
+		return board.tobytes()
+
+	def getNumberOfPlayers(self):
+		return self.NUMBER_PLAYERS
+
+	def moveToString(self, move, current_player):
+		return move_to_str(move)
+
+	def printBoard(self, numpy_board):
+		board = Board(self.getNumberOfPlayers())
+		board.copy_state(numpy_board, False)
+		print_board(board)
+	
+	def getNobleGemIDs(self, board):
+		nobles = board.nobles
+		print("nobles: ", nobles)
+		return None
+	
+	def disableReserve(self):
+		self.board.ENABLE_ACTION_RESERVE = False
+
+	def enableReserve(self):
+		self.board.ENABLE_ACTION_RESERVE = True
