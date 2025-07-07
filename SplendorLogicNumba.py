@@ -17,6 +17,7 @@ NUM_3TAKE_3GIVE = 40
 NUM_OF_EXCHANGE = NUM_3TAKE_1GIVE + NUM_3TAKE_2GIVE + NUM_2TAKE_DIFF_2GIVE + NUM_2TAKE_SAME_2GIVE\
 								+ NUM_2TAKE_DIFF_1GIVE + NUM_2TAKE_SAME_1GIVE + NUM_1TAKE_1GIVE + NUM_1TAKEG_1GIVE\
 							  + NUM_3TAKE_3GIVE
+NUM_OF_GET_NOBLE = 3 #2人戦のみ
 
 idx_white, idx_blue, idx_green, idx_red, idx_black, idx_gold, idx_points = range(7)
 mask = np.array([128, 64, 32, 16, 8, 4, 2, 1], dtype=np.uint8)
@@ -30,7 +31,8 @@ def action_size():
 	#return 81 #buy +reserve +take +give
 	#return 270 #+exchange
 	#return 366 #+rsv exchange +pass
-	return 406 #+3-3 exchange +pass
+	#return 406 #+3-3 exchange +pass
+	return 409 #+select noble pattern
 	#return 4171 #+payment pattern(3765)
 
 @njit(cache=True, fastmath=True, nogil=True)
@@ -256,7 +258,8 @@ class Board():
 		giv_flgs = np.concatenate((self._valid_give_gems(player), self._valid_give_gems_identical(player)))
 		giv_flgs3= self._valid_give_gems3(player)
 		rsv_flg  = self._valid_reserve(player, False)
-		result[12+15+3+30:-1] = self._valid_exchange(player, get_flgs, giv_flgs, giv_flgs3, rsv_flg)
+		result[12+15+3+30:12+15+3+30+NUM_OF_EXCHANGE] = self._valid_exchange(player, get_flgs, giv_flgs, giv_flgs3, rsv_flg)
+		result[12+15+3+30+NUM_OF_EXCHANGE:-1] = self._valid_select_noble(player)
 		result[-1] = True if not np.any(result[:-1]) else False  #何も行動できない場合のみpass可
 
 		return result
@@ -445,8 +448,17 @@ class Board():
 			card = self._get_deck_card(tier)
 			if card is not None:
 				self.cards_tiers[8*tier+2*index:8*tier+2*index+2] = card
+	
+	#購入対象カードの価格と金枚数に応じて金を何色に何枚使うかの組み合わせを列挙する
+	def _calc_gold_alloc(self, card, player, num_gold):
+		
+		pass
+
 
 	def _buy_card(self, card0, card1, player):
+		if (num_gold := self.players_gems[player][idx_gold]) > 0:
+			galloc_pattern = self._calc_gold_alloc(card0, player, num_gold) #支払い時の金配分組み合わせを列挙
+
 		card_cost = card0[:5]
 		player_gems = self.players_gems[player][:5]
 		player_cards = self.players_cards[player][:5]
@@ -666,6 +678,9 @@ class Board():
 				take1g_give1 = np.logical_and(rsv_flgs, give1_flgs_for_take1g).astype(np.int8)
 
 		return np.concatenate((take3_give1, take3_give2, take2d_give2, take2s_give2, take2d_give1, take2s_give1, take1_give1, take1g_give1, take3_give3))
+
+	def _valid_select_noble(player):
+		if 
 
 	def _give_gems(self, i, player):
 		if i < np_different_gems_up_to_2.shape[0]: # Different gems (0-14)
