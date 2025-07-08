@@ -63,6 +63,12 @@ class HumanPlayer():
 					print(f'{i} = {move_to_str(i, short=True)}', end='   ')		
 		print('(+ to show all moves)')
 
+	def show_all_payments(self, galloc): #全支払い組み合わせを出力
+		for i, num_golds in enumerate(galloc): #num_golds: Nx5 [W Blu G  R  Blk]に何枚充当するか
+			light_colors[]
+
+
+
 	def play(self, board):
 		# print_board(self.game.board)
 		valid = self.game.getValidMoves(board, 0)
