@@ -7,7 +7,7 @@ from operator import attrgetter
 #from numba import njit
 #import numba
 
-from .SplendorLogic import print_board, move_to_str
+from .SplendorLogic import print_board, move_to_str, light_colors
 from .SplendorGame import Game
 from .SplendorGame import Board
 
@@ -64,8 +64,10 @@ class HumanPlayer():
 		print('(+ to show all moves)')
 
 	def show_all_payments(self, galloc): #全支払い組み合わせを出力
+		print("payment patterns:")
 		for i, num_golds in enumerate(galloc): #num_golds: Nx5 [W Blu G  R  Blk]に何枚充当するか
-			light_colors[]
+			print(f"{light_colors[i]}")
+
 
 
 
