@@ -589,6 +589,14 @@ def _print_players(board):
 				print(f' '*4, end='')
 			print()
 
+def _print_all_payments(galloc): #全支払い組み合わせを出力
+	print("payment patterns:")
+	for i, num_golds in enumerate(galloc): #num_golds: Nx5 [W Blu G  R  Blk]に何枚充当するか
+		print("[%d]: " % (i+1), end="")
+		for j, num_gold in enumerate(num_golds):
+			print(f"{light_colors[i]} x{num_gold}", end="")
+		print("") #改行
+
 def print_board(board):
 	_print_round_and_scores(board)
 	_print_nobles(board)
